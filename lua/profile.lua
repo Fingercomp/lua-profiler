@@ -43,7 +43,7 @@ local function padRight(s, l, sl)
 end
 
 local function report(path, timesum, profile)
-  path = path or "/out"
+  path = path or "./profiler-report.txt"
 
   local f = io.open(path, "w")
 
