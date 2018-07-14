@@ -9,7 +9,7 @@
 
 #ifdef _WIN32
 
-#include <Windows.h>
+#include <windows.h>
 
 // ¯\_(ツ)_/¯
 struct timespec {
@@ -24,12 +24,12 @@ static struct timespec *get_time() {
     LARGE_INTEGER ticks;
 
     if (!freq_set) {
-        QueryPerfomanceFrequency(&freq);
+        QueryPerformanceFrequency(&freq);
         freq_set = 1;
     }
 
     struct timespec *ts = malloc(sizeof(struct timespec));
-    QueryPerfomanceCounter(&ticks);
+    QueryPerformanceCounter(&ticks);
 
     ts->tv_sec = ticks.QuadPart / freq.QuadPart;
     ts->tv_nsec = (ticks.QuadPart % freq.QuadPart) * NANOSECONDS_IN_SEC / \
