@@ -1,12 +1,54 @@
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
 
 #define NANOSECOND_MULTIPLIER 0.000000001
 #define NANOSECONDS_IN_SEC 1000000000
+
+#ifdef _WIN32
+
+#include <Windows.h>
+
+// ¯\_(ツ)_/¯
+struct timespec {
+    long long tv_sec;
+    long tv_nsec;
+};
+
+static LARGE_INTEGER freq;
+static int freq_set = 0;
+
+static struct timespec *get_time() {
+    LARGE_INTEGER ticks;
+
+    if (!freq_set) {
+        QueryPerfomanceFrequency(&freq);
+        freq_set = 1;
+    }
+
+    struct timespec *ts = malloc(sizeof(struct timespec));
+    QueryPerfomanceCounter(&ticks);
+
+    ts->tv_sec = ticks.QuadPart / freq.QuadPart;
+    ts->tv_nsec = (ticks.QuadPart % freq.QuadPart) * NANOSECONDS_IN_SEC / \
+        freq.QuadPart;
+
+    return ts;
+}
+
+#else
+
+#include <time.h>
+
+static struct timespec *get_time() {
+    struct timespec *ts = malloc(sizeof(struct timespec));
+    clock_gettime(CLOCK_MONOTONIC_RAW, ts);
+    return ts;
+}
+
+#endif
 
 static const int OPAQUE_REGISTRY_KEY = 0;
 
@@ -24,12 +66,6 @@ typedef struct ProfileItem {
     long long time_sec;
     long time_nsec;
 } ProfileItem;
-
-static struct timespec *get_time() {
-    struct timespec *ts = malloc(sizeof(struct timespec));
-    clock_gettime(CLOCK_MONOTONIC_RAW, ts);
-    return ts;
-}
 
 static inline double calc_time_delta(
     struct timespec *ts1,
