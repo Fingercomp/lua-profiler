@@ -6,6 +6,11 @@ A simple Lua profiler. Requires Lua 5.3.
 * Minimalistic.
 * Pretty report output format.
 
+## Obsolete
+This library is no longer maintained. See
+[this repository](https://github.com/Fingercomp/lprofile-rs) for a
+reimplementation in Rust.
+
 ## Installation
 Compile the hook, and put `profile_hook.so` in Lua's `package.cpath`
 (e.g. `/usr/lib/lua/5.3`).
